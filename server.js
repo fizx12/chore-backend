@@ -1,36 +1,39 @@
-
-
 // server.js
 const express = require("express");
+const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ---------- CORS (TiinyHost frontend) ---------- //
+// FRONTEND_ORIGIN env var can be set to your TiinyHost URL.
+// If not set, we fall back to "*".
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "*";
+
+app.use(
+  cors({
+    origin: FRONTEND_ORIGIN === "*" ? "*" : FRONTEND_ORIGIN,
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type"]
+  })
+);
+
+// Optional: handle OPTIONS explicitly (some browsers do this)
+app.options("*", (req, res) => {
+  res.sendStatus(200);
+});
+
 // ---------- PERSISTENT STORAGE SETUP ---------- //
-// On Railway, create a Volume and mount it at /data,
-// then set env var: DATA_DIR=/data
+// On Railway we’ll mount a Volume at /data and set DATA_DIR=/data.
+// Locally it falls back to ./data.
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
 const STATE_FILE = path.join(DATA_DIR, "chore-state.json");
 
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
-
-// ---------- CORS (TIINYHOST FRONTEND) ---------- //
-// If you change your TiinyHost URL, update the origin string below.
-const FRONTEND_ORIGIN = "https://chores2d.tiiny.site";
-
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
-  res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-  next();
-});
 
 // ---------- BODY PARSING ---------- //
 app.use(express.json({ limit: "1mb" }));
@@ -41,7 +44,7 @@ function loadState() {
     const raw = fs.readFileSync(STATE_FILE, "utf8");
     return JSON.parse(raw);
   } catch (e) {
-    // file might not exist yet, or be invalid
+    // file may not exist yet
     return null;
   }
 }
@@ -77,4 +80,5 @@ app.post("/api/chore-state", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Chore server running on port ${PORT}`);
   console.log(`Using data directory: ${DATA_DIR}`);
+  console.log(`Allowing origin: ${FRONTEND_ORIGIN}`);
 });
