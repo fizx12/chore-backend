@@ -22,6 +22,7 @@ app.use(cors({
 
     // Allow localhost and 127.0.0.1 (for testing)
     if (origin.startsWith("http://localhost") || 
+        origin.includes("github.io") ||
         origin.startsWith("http://127.0.0.1") ||
         origin.startsWith("https://localhost") ||
         origin.startsWith("https://127.0.0.1")) {
@@ -99,3 +100,4 @@ app.listen(PORT, "0.0.0.0", () => {
 setTimeout(() => {
   console.log("Server fully ready – health checks will now pass!");
 }, 2000);
+
