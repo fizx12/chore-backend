@@ -1,6 +1,7 @@
 {
   "name": "chore-chart-server",
   "version": "1.0.0",
+  "description": "Backend API for chore chart sync across devices",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
