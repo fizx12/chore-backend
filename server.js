@@ -1,4 +1,4 @@
-// server.js – FINAL VERSION (works with ANY tiiny.site URL forever)
+// server.js – FINAL VERSION (works with GitHub Pages + ANY tiiny.site URL)
 const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
@@ -14,7 +14,7 @@ app.get("/", (req, res) => {
   res.status(200).json({ status: "ok", message: "Chore backend ready!" });
 });
 
-// DYNAMIC CORS – allows ANY tiiny.site URL + localhost
+// DYNAMIC CORS – allows GitHub Pages, ANY tiiny.site + localhost
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps, Postman, curl)
@@ -22,14 +22,18 @@ app.use(cors({
 
     // Allow localhost and 127.0.0.1 (for testing)
     if (origin.startsWith("http://localhost") || 
-        origin.includes("github.io") ||
         origin.startsWith("http://127.0.0.1") ||
         origin.startsWith("https://localhost") ||
         origin.startsWith("https://127.0.0.1")) {
       return callback(null, true);
     }
 
-    // Allow ANY tiiny.site domain (chores2d.tiiny.site, mytest.tiiny.site, etc.)
+    // Allow ANY GitHub Pages (fizx12.github.io, etc.)
+    if (origin.includes("github.io")) {
+      return callback(null, true);
+    }
+
+    // Allow ANY tiiny.site domain (chores2d.tiiny.site, etc.)
     if (origin.endsWith(".tiiny.site")) {
       return callback(null, true);
     }
@@ -93,11 +97,10 @@ app.post("/api/chore-state", (req, res) => {
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Data saved to: ${STATE_FILE}`);
-  console.log("CORS: localhost + ANY *.tiiny.site allowed");
+  console.log("CORS: GitHub Pages + ANY *.tiiny.site + localhost allowed");
 });
 
 // Extra safety for Railway health checks
 setTimeout(() => {
   console.log("Server fully ready – health checks will now pass!");
 }, 2000);
-
