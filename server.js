@@ -5,7 +5,11 @@ const fs = require("fs");
 const path = require("path");
 
 const app = express();
+app.set('trust proxy', 1);
+
 const PORT = process.env.PORT || 3000;
+
+
 
 // ---------- ROOT ROUTE (REQUIRED FOR RAILWAY HEALTH CHECK) ----------
 app.get("/", (req, res) => {
@@ -76,3 +80,4 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log(`Data directory: ${DATA_DIR}`);
   console.log(`CORS origin: ${FRONTEND_ORIGIN}`);
 });
+
